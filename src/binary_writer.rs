@@ -29,12 +29,37 @@ impl<T: Write> BinaryWriter<T> {
         self.inner
             .write_all(&[self.buffer | (x >> (8 - self.index))])
             .unwrap();
-        self.buffer = x.wrapping_shl(self.index as u32);
+        if self.index == 8 {
+            self.buffer = 0;
+        } else {
+            self.buffer = x.wrapping_shl(self.index as u32);
+        }
     }
 
-    pub fn write_u64(&self, x: u64) {
-        for i in 0..8 {
-            self.write_u8((x >> (i * 8)) as u8);
+    pub fn write_u64(&mut self, x: u64) {
+        self.inner
+            .write_all(&[self.buffer | (x >> (64 - self.index)) as u8])
+            .unwrap();
+        let mut i = 56 - self.index;
+        while i >= 0 {
+            self.inner.write_all(&[(x >> i) as u8]).unwrap();
+            i -= 8;
+        }
+        self.buffer = (x << self.index) as u8;
+    }
+
+    // // big-endian
+    // pub fn write_u64(&mut self, x: u64) {
+    //     for i in (0..8).rev() {
+    //         self.write_u8((x >> (i * 8)) as u8);
+    //     }
+    // }
+}
+
+impl<T: Write> Drop for BinaryWriter<T> {
+    fn drop(&mut self) {
+        if self.index < 8 {
+            self.inner.write_all(&[self.buffer]).unwrap();
         }
     }
 }
