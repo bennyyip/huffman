@@ -4,7 +4,7 @@ pub mod huffman;
 pub mod compress;
 pub mod decompress;
 
-pub use compress::compress_file;
+pub use compress::{compress_file, show_freq_and_dict};
 pub use decompress::decompress_file;
 
 #[cfg(test)]

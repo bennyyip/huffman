@@ -32,7 +32,7 @@ impl<T: Write> BinaryWriter<T> {
         if self.index == 8 {
             self.buffer = 0;
         } else {
-            self.buffer = x.wrapping_shl(self.index as u32);
+            self.buffer = x << self.index as u32;
         }
     }
 
@@ -42,7 +42,6 @@ impl<T: Write> BinaryWriter<T> {
             self.write_u8((x >> (i * 8)) as u8);
         }
     }
-
 }
 
 impl<T: Write> Drop for BinaryWriter<T> {

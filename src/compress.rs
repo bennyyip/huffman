@@ -55,9 +55,9 @@ pub fn compress<R: Read, W: Write>(
     // non-negative if only one symbol, = the symbol
     let mut single_symbol = -1;
 
-    for (symbol, freq) in freq_table.iter().enumerate() {
-        if *freq > 0 {
-            num_bytes += *freq;
+    for (symbol, &freq) in freq_table.iter().enumerate() {
+        if freq > 0 {
+            num_bytes += freq;
             if single_symbol >= 0 {
                 single_symbol = -2;
             } else if single_symbol == -1 {
@@ -106,5 +106,23 @@ pub fn compress_file<W: Write>(input_file: &str, output: &mut W) -> ::std::io::R
     let mut input = BufReader::new(f);
     let mut output = BinaryWriter::new(output);
     compress(freq_table, &mut input, &mut output);
+    Ok(())
+}
+
+pub fn show_freq_and_dict(input_file: &str) -> ::std::io::Result<()> {
+    let freq_table = {
+        let f = File::open(input_file)?;
+        let mut input = BufReader::new(f).bytes();
+        read_freq_table(&mut input)
+    };
+
+    if let Some(root) = build_tree(freq_table) {
+        let mut table = vec![vec![]; 256];
+        let mut dummy = [0u8; 8 * 1024];
+        let mut dummy = BinaryWriter::new(&mut dummy[..]);
+
+        let mut bit_sequence = vec![];
+        dfs(&root, &mut bit_sequence, &mut table, &mut dummy);
+    }
     Ok(())
 }
