@@ -9,10 +9,6 @@ pub fn read_freq_table<R: Read>(input: &mut Bytes<R>) -> [u64; 256] {
     while let Some(Ok(x)) = input.next() {
         freq_table[x as usize] += 1;
     }
-    for (symbol, &freq) in freq_table.iter().enumerate() {
-        if freq > 0 {
-        }
-    }
     freq_table
 }
 

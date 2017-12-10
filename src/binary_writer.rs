@@ -36,24 +36,13 @@ impl<T: Write> BinaryWriter<T> {
         }
     }
 
+    // big-endian
     pub fn write_u64(&mut self, x: u64) {
-        self.inner
-            .write_all(&[self.buffer | (x >> (64 - self.index)) as u8])
-            .unwrap();
-        let mut i = 56 - self.index;
-        while i >= 0 {
-            self.inner.write_all(&[(x >> i) as u8]).unwrap();
-            i -= 8;
+        for i in (0..8).rev() {
+            self.write_u8((x >> (i * 8)) as u8);
         }
-        self.buffer = (x << self.index) as u8;
     }
 
-    // // big-endian
-    // pub fn write_u64(&mut self, x: u64) {
-    //     for i in (0..8).rev() {
-    //         self.write_u8((x >> (i * 8)) as u8);
-    //     }
-    // }
 }
 
 impl<T: Write> Drop for BinaryWriter<T> {
