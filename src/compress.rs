@@ -123,6 +123,29 @@ pub fn show_freq_and_dict(input_file: &str) -> ::std::io::Result<()> {
 
         let mut bit_sequence = vec![];
         dfs(&root, &mut bit_sequence, &mut table, &mut dummy);
+
+
+        println!("字母\t\t词频\t赫夫曼编码");
+
+        for (symbol, &freq) in freq_table.iter().enumerate() {
+            if freq > 0 {
+                println!(
+                    "{:?}\t\t{}\t{}",
+                    String::from_utf8_lossy(&[symbol as u8]),
+                    freq,
+                    code_to_str(&table[symbol])
+                );
+            }
+        }
+
     }
     Ok(())
+}
+
+fn code_to_str(v: &Vec<bool>) -> String {
+    let mut r = String::with_capacity(v.len());
+    for (i, &x) in v.iter().enumerate() {
+        r.insert(i, if x { '0' } else { '1' });
+    }
+    r.to_owned()
 }
